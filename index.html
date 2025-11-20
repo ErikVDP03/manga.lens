@@ -36,10 +36,8 @@
         #processing-canvas { display: none; }
         
         /* Tutorial Highlight Pulse */
-        /* Important: Background color ensures text remains readable over the backdrop */
         .tutorial-highlight {
-            box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.8), 0 0 50px rgba(0,0,0,0.5);
-            z-index: 100 !important; 
+            box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.8), 0 0 20px rgba(139, 92, 246, 0.4);
             position: relative;
             transition: all 0.3s ease;
             background-color: inherit; 
@@ -107,7 +105,7 @@
 
         const TutorialOverlay = ({ step, onNext, onSkip }) => {
             const steps = [
-                { id: 'step-mode', title: "1. Smart Modes", text: "Choose 'Color' for Webtoons or 'B&W' for traditional manga. B&W mode auto-cleans noise." },
+                { id: 'step-mode', title: "1. Smart Modes", text: "Choose 'Color/HQ' for Webtoons or standard scans. Use 'B&W/Raw' only for noisy/grainy scans that need cleaning." },
                 { id: 'step-api', title: "2. Your Key", text: "Paste your free Google Gemini API key here. It's stored locally on your device—we never see it." },
                 { id: 'step-upload', title: "3. Batch Upload", text: "Drag and drop your raw files here. We handle large chapters (200+ pages) with ease." },
                 { id: 'step-translate', title: "4. Magic Wand", text: "Click 'Translate All' to auto-scan every page. Sit back and watch the green checks appear!" },
@@ -119,7 +117,7 @@
 
             return (
                 <div className="fixed inset-0 z-[90] pointer-events-none">
-                    <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px]"></div>
+                    <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px]"></div>
                     <div className="fixed bottom-10 left-1/2 transform -translate-x-1/2 md:left-auto md:right-10 md:bottom-10 md:translate-x-0 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 p-6 rounded-xl shadow-2xl w-80 pointer-events-auto animate-fade-in transition-colors z-[120]">
                         <div className="flex justify-between items-start mb-3">
                             <h3 className="font-bold text-lg text-blue-600 dark:text-blue-400">{current.title}</h3>
@@ -155,7 +153,7 @@
             const [showDebug, setShowDebug] = useState(false);
             const [debugImage, setDebugImage] = useState(null);
 
-            // Tutorial State (Always show on refresh as requested)
+            // Tutorial State
             const [showWelcome, setShowWelcome] = useState(true);
             const [tutorialStep, setTutorialStep] = useState(-1);
 
@@ -173,7 +171,7 @@
             const startTutorial = () => {
                 setShowWelcome(false);
                 setTutorialStep(0);
-                setIsMobileMenuOpen(true); // Open menu on mobile so they can see steps
+                setIsMobileMenuOpen(true);
             };
             const nextTutorialStep = () => {
                 if (tutorialStep < 4) setTutorialStep(prev => prev + 1);
@@ -523,6 +521,7 @@
                     <div className={`
                         fixed md:static inset-y-0 left-0 z-30 w-80 bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700 flex flex-col h-full shadow-2xl md:shadow-none transition-transform duration-300 transform md:transform-none
                         ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
+                        ${tutorialStep >= 0 ? 'z-[100]' : 'z-30'}
                         pt-14 md:pt-0
                     `}>
                         {/* Desktop Header */}
@@ -571,13 +570,13 @@
                                             onClick={() => { setPageType('color'); if(activeImage) processImage(activeImage.url); }}
                                             className={`flex-1 text-xs py-1.5 rounded-md transition-all font-medium ${pageType === 'color' ? 'bg-white dark:bg-blue-600 text-blue-600 dark:text-white shadow' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white'}`}
                                         >
-                                            Color
+                                            Color / HQ
                                         </button>
                                         <button 
                                             onClick={() => { setPageType('bw'); if(activeImage) processImage(activeImage.url); }}
                                             className={`flex-1 text-xs py-1.5 rounded-md transition-all font-medium ${pageType === 'bw' ? 'bg-white dark:bg-blue-600 text-blue-600 dark:text-white shadow' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white'}`}
                                         >
-                                            B & W
+                                            B&W / Raw
                                         </button>
                                     </div>
                                 </div>
@@ -597,7 +596,7 @@
                                             onChange={(e) => { setThreshold(Number(e.target.value)); if(activeImage) processImage(activeImage.url); }}
                                             className="w-full h-1 bg-slate-300 dark:bg-slate-600 rounded-lg appearance-none cursor-pointer accent-blue-500" 
                                         />
-                                        <p className="text-[9px] text-slate-400 mt-1 italic">If text is missing, lower this or use Color mode.</p>
+                                        <p className="text-[9px] text-slate-400 mt-1 italic">Use only if raw scan is noisy/grainy.</p>
                                     </div>
                                 )}
                             </div>
