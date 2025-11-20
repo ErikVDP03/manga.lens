@@ -35,11 +35,12 @@
 
         #processing-canvas { display: none; }
         
-        /* Tutorial Highlight Pulse */
+        /* Tutorial Highlight Pulse - Z-INDEX FIXED to 100 to sit ABOVE overlay */
         .tutorial-highlight {
             box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.6);
-            z-index: 60;
+            z-index: 100 !important; 
             position: relative;
+            background-color: inherit; /* Ensure background isn't transparent */
             transition: all 0.3s ease;
         }
     </style>
@@ -74,14 +75,16 @@
                 arrowRight: <><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></>,
                 moon: <><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" /></>,
                 sun: <><circle cx="12" cy="12" r="4" /><path d="M12 2v2" /><path d="M12 20v2" /><path d="m4.93 4.93 1.41 1.41" /><path d="m17.66 17.66 1.41 1.41" /><path d="M2 12h2" /><path d="M20 12h2" /><path d="m6.34 17.66-1.41-1.41" /><path d="m19.07 4.93-1.41 1.41" /></>,
-                menu: <><line x1="4" y1="12" x2="20" y2="12" /><line x1="4" y1="6" x2="20" y2="6" /><line x1="4" y1="18" x2="20" y2="18" /></>
+                menu: <><line x1="4" y1="12" x2="20" y2="12" /><line x1="4" y1="6" x2="20" y2="6" /><line x1="4" y1="18" x2="20" y2="18" /></>,
+                printer: <><polyline points="6 9 6 2 18 2 18 9" /><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" /><rect x="6" y="14" width="12" height="8" /></>,
+                help: <><circle cx="12" cy="12" r="10" /><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" /><path d="M12 17h.01" /></>
             };
             return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>{icons[name]}</svg>;
         };
 
         // --- TUTORIAL COMPONENTS ---
         const WelcomeModal = ({ onStart, onClose }) => (
-            <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in">
+            <div className="fixed inset-0 z-[110] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in">
                 <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-8 max-w-md w-full text-center shadow-2xl relative overflow-hidden transition-colors">
                     <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-blue-500 to-purple-500"></div>
                     <img src="icon.png" className="w-24 h-24 mx-auto mb-6 rounded-full shadow-lg border-4 border-white dark:border-slate-700" alt="MangaLens Logo" />
@@ -107,7 +110,7 @@
                 { id: 'step-api', title: "2. Your Key", text: "Paste your free Google Gemini API key here. It's stored locally on your device—we never see it." },
                 { id: 'step-upload', title: "3. Batch Upload", text: "Drag and drop your raw files here. We handle large chapters (200+ pages) with ease." },
                 { id: 'step-translate', title: "4. Magic Wand", text: "Click 'Translate All' to auto-scan every page. Sit back and watch the green checks appear!" },
-                { id: 'step-download', title: "5. Export PDF", text: "Done? Download a professionally formatted PDF with side-by-side translations." }
+                { id: 'step-download', title: "5. Export PDF", text: "Preview & Print your chapter, or Download it directly. Side-by-side translations included!" }
             ];
 
             const current = steps[step];
@@ -115,8 +118,8 @@
 
             return (
                 <div className="fixed inset-0 z-[90] pointer-events-none">
-                    <div className="absolute inset-0 bg-black/30 backdrop-blur-[1px]"></div>
-                    <div className="fixed bottom-10 left-1/2 transform -translate-x-1/2 md:left-auto md:right-10 md:bottom-10 md:translate-x-0 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 p-6 rounded-xl shadow-2xl w-80 pointer-events-auto animate-fade-in transition-colors">
+                    <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px]"></div>
+                    <div className="fixed bottom-10 left-1/2 transform -translate-x-1/2 md:left-auto md:right-10 md:bottom-10 md:translate-x-0 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 p-6 rounded-xl shadow-2xl w-80 pointer-events-auto animate-fade-in transition-colors z-[120]">
                         <div className="flex justify-between items-start mb-3">
                             <h3 className="font-bold text-lg text-blue-600 dark:text-blue-400">{current.title}</h3>
                             <span className="text-xs bg-slate-200 dark:bg-slate-700 px-2 py-0.5 rounded text-slate-600 dark:text-slate-300">{step + 1}/{steps.length}</span>
@@ -182,7 +185,7 @@
 
             const getHighlightClass = (stepId) => {
                 const map = ['step-mode', 'step-api', 'step-upload', 'step-translate', 'step-download'];
-                return tutorialStep !== -1 && map[tutorialStep] === stepId ? 'tutorial-highlight ring-4 ring-blue-500 dark:ring-blue-400 rounded-lg transition-all duration-300' : '';
+                return tutorialStep !== -1 && map[tutorialStep] === stepId ? 'tutorial-highlight ring-4 ring-blue-500 dark:ring-blue-400 rounded-lg transition-all duration-300 shadow-xl' : '';
             };
 
             // --- Core Logic ---
@@ -370,7 +373,8 @@
                 setTimeout(() => setProcessing({ status: 'idle', message: '' }), 3000);
             };
 
-            const generatePDF = async () => {
+            // --- Combined PDF Function (Print or Save) ---
+            const createPDF = async (action = 'save') => {
                 if (images.length === 0) return;
                 setProcessing({ status: 'busy', message: 'Generating PDF...' });
 
@@ -450,8 +454,15 @@
                         setProcessing({ status: 'busy', message: `PDF: Page ${i+1}/${images.length}` });
                     }
 
-                    doc.save('Manga_Translated.pdf');
-                    setProcessing({ status: 'success', message: 'PDF Downloaded!' });
+                    if (action === 'print') {
+                        doc.autoPrint();
+                        window.open(doc.output('bloburl'), '_blank');
+                        setProcessing({ status: 'success', message: 'Opened Preview!' });
+                    } else {
+                        doc.save('Manga_Translated.pdf');
+                        setProcessing({ status: 'success', message: 'PDF Downloaded!' });
+                    }
+                    
                     setTimeout(() => setProcessing({ status: 'idle', message: '' }), 2000);
                 } catch (err) {
                     setProcessing({ status: 'error', message: 'PDF Error: ' + err.message });
@@ -509,6 +520,7 @@
                     <div className={`
                         fixed md:static inset-y-0 left-0 z-30 w-80 bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700 flex flex-col h-full shadow-2xl md:shadow-none transition-transform duration-300 transform
                         ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
+                        pt-14 md:pt-0
                     `}>
                         {/* Desktop Header */}
                         <div className="hidden md:flex p-4 border-b border-slate-200 dark:border-slate-700 justify-between items-center flex-shrink-0">
@@ -518,6 +530,9 @@
                             <div className="flex gap-2">
                                 <button onClick={() => setIsDarkMode(!isDarkMode)} className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-500 dark:text-yellow-400 transition-colors" title="Toggle Theme">
                                     <Icon name={isDarkMode ? "sun" : "moon"} />
+                                </button>
+                                <button onClick={startTutorial} className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400 dark:hover:text-white transition-colors" title="Help">
+                                    <Icon name="help" />
                                 </button>
                                 <button onClick={clearAllImages} className="p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-slate-400 hover:text-red-500 transition-colors" title="Clear All">
                                     <Icon name="refresh" />
@@ -628,8 +643,11 @@
                                 <input type="file" multiple accept="image/*" onChange={handleUpload} className="hidden" />
                             </label>
 
-                            <div className={`bg-slate-50 dark:bg-slate-700/30 rounded-xl border border-slate-200 dark:border-slate-600 p-1 ${getHighlightClass('step-download')}`}>
-                                <button onClick={generatePDF} disabled={images.length === 0} className="w-full h-10 bg-green-600 hover:bg-green-500 text-white rounded-lg font-bold text-xs shadow flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                            <div className={`bg-slate-50 dark:bg-slate-700/30 rounded-xl border border-slate-200 dark:border-slate-600 p-1 flex gap-1 ${getHighlightClass('step-download')}`}>
+                                <button onClick={() => createPDF('print')} disabled={images.length === 0} className="w-12 h-10 bg-slate-200 dark:bg-slate-600 hover:bg-slate-300 dark:hover:bg-slate-500 text-slate-700 dark:text-white rounded-lg flex items-center justify-center transition-colors disabled:opacity-50 disabled:cursor-not-allowed" title="Print / Preview">
+                                    <Icon name="printer" />
+                                </button>
+                                <button onClick={() => createPDF('save')} disabled={images.length === 0} className="flex-1 h-10 bg-green-600 hover:bg-green-500 text-white rounded-lg font-bold text-xs shadow flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
                                     <Icon name="download" /> Download PDF
                                 </button>
                             </div>
