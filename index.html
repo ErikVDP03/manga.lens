@@ -35,13 +35,14 @@
 
         #processing-canvas { display: none; }
         
-        /* Tutorial Highlight Pulse - Z-INDEX FIXED to 100 to sit ABOVE overlay */
+        /* Tutorial Highlight Pulse */
+        /* Important: Background color ensures text remains readable over the backdrop */
         .tutorial-highlight {
-            box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.6);
+            box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.8), 0 0 50px rgba(0,0,0,0.5);
             z-index: 100 !important; 
             position: relative;
-            background-color: inherit; /* Ensure background isn't transparent */
             transition: all 0.3s ease;
+            background-color: inherit; 
         }
     </style>
 </head>
@@ -455,8 +456,10 @@
                     }
 
                     if (action === 'print') {
-                        doc.autoPrint();
-                        window.open(doc.output('bloburl'), '_blank');
+                        // More robust print/preview method: Open blob URL in new tab
+                        const blob = doc.output('blob');
+                        const url = URL.createObjectURL(blob);
+                        window.open(url, '_blank');
                         setProcessing({ status: 'success', message: 'Opened Preview!' });
                     } else {
                         doc.save('Manga_Translated.pdf');
@@ -518,7 +521,7 @@
 
                     {/* SIDEBAR */}
                     <div className={`
-                        fixed md:static inset-y-0 left-0 z-30 w-80 bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700 flex flex-col h-full shadow-2xl md:shadow-none transition-transform duration-300 transform
+                        fixed md:static inset-y-0 left-0 z-30 w-80 bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700 flex flex-col h-full shadow-2xl md:shadow-none transition-transform duration-300 transform md:transform-none
                         ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
                         pt-14 md:pt-0
                     `}>
