@@ -1,6 +1,3 @@
-# manga.lens
-MangaLens is an AI-powered, browser-based manga translation tool. It instantly translates Japanese manga and comics into English using Google's Gemini 1.5 AI. It features batch processing for entire chapters (100+ pages), and generates high-quality PDFs with English translations alongside the original art.
-
 MangaLens 🔍
 
 An AI-powered browser tool for translating manga and comics instantly using Google Gemini.
@@ -9,7 +6,7 @@ MangaLens is a client-side web application that allows users to upload raw manga
 
 ✨ Features
 
-Gemini AI Integration: Uses Google's Gemini 1.5 Flash/Pro models for high-accuracy translation.
+Gemini AI Integration: Uses Google's Gemini 2.5 Flash/Pro models for high-accuracy translation.
 
 Batch Processing: Translate 100+ pages automatically with a single click.
 
@@ -43,7 +40,7 @@ Frontend: React 18 (via CDN), Tailwind CSS
 
 PDF Generation: jsPDF
 
-AI Model: Google Gemini API (1.5 Flash)
+AI Model: Google Gemini API (2.5 Flash)
 
 📄 License
 
