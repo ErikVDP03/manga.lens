@@ -387,10 +387,10 @@
 
                 try {
                     const doc = new jsPDF({ orientation: 'landscape', unit: 'px', hotfixes: ["px_scaling"] });
-                    const sidebarWidth = 400; 
+                    const sidebarWidth = 500; 
                     const bgColor = isDarkMode ? '#374151' : '#ffffff';
                     const textColor = isDarkMode ? '#ffffff' : '#000000';
-                    const margin = 20;
+                    const margin = 30;
 
                     for (let i = 0; i < images.length; i++) {
                         const imgData = images[i];
@@ -405,18 +405,43 @@
                             continue; 
                         }
 
-                        const tempCanvas = document.createElement('canvas');
-                        const ctx = tempCanvas.getContext('2d');
-                        ctx.font = "20px serif";
-                        const maxWidth = sidebarWidth - (margin * 2);
-                        
                         const text = imgData.engText || "";
                         const paragraphs = text.split(/\n+/);
+                        
+                        // Set up temporary page to calculate text dimensions
+                        if (i === 0) {
+                            doc.internal.pageSize.width = img.naturalWidth + sidebarWidth;
+                            doc.internal.pageSize.height = Math.max(img.naturalHeight, 600);
+                        } else {
+                            doc.addPage([img.naturalWidth + sidebarWidth, Math.max(img.naturalHeight, 600)], 'landscape');
+                        }
+                        
+                        doc.setFontSize(18);
+                        doc.setFont(undefined, 'normal');
+                        
+                        const maxWidth = sidebarWidth - (margin * 2) - 10;
                         let allLines = [];
 
                         paragraphs.forEach(para => {
-                            const lines = getLines(ctx, para, maxWidth);
-                            allLines.push(...lines);
+                            if (!para) {
+                                allLines.push("");
+                                return;
+                            }
+                            const words = para.split(' ');
+                            let currentLine = words[0] || "";
+
+                            for (let j = 1; j < words.length; j++) {
+                                const testLine = currentLine + " " + words[j];
+                                const testWidth = doc.getTextWidth(testLine);
+                                
+                                if (testWidth > maxWidth) {
+                                    allLines.push(currentLine);
+                                    currentLine = words[j];
+                                } else {
+                                    currentLine = testLine;
+                                }
+                            }
+                            if (currentLine) allLines.push(currentLine);
                             allLines.push(""); 
                         });
 
@@ -425,11 +450,9 @@
                         const pageHeight = Math.max(img.naturalHeight, textBlockHeight, 600); 
                         const pageWidth = img.naturalWidth + sidebarWidth;
 
-                        if (i > 0) doc.addPage([pageWidth, pageHeight], 'landscape');
-                        else { 
-                            doc.internal.pageSize.width = pageWidth; 
-                            doc.internal.pageSize.height = pageHeight; 
-                        }
+                        // Update page size if needed
+                        doc.internal.pageSize.width = pageWidth; 
+                        doc.internal.pageSize.height = pageHeight;
 
                         doc.setFillColor(bgColor);
                         doc.rect(img.naturalWidth, 0, sidebarWidth, pageHeight, 'F');
@@ -449,7 +472,7 @@
                         doc.setFont(undefined, 'bold');
                         doc.text(`Page ${i+1}`, img.naturalWidth + margin, 50);
 
-                        doc.setFontSize(20);
+                        doc.setFontSize(18);
                         doc.setFont(undefined, 'normal');
                         let cursorY = 100;
                         
