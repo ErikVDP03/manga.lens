@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MangaLens V13 - Batch Translator</title>
+    <title>MangaLens</title>
+    <link rel="icon" href="icon.png" type="image/png">
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -20,17 +21,31 @@
 
     <style>
         ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: #1f2937; }
-        ::-webkit-scrollbar-thumb { background: #4b5563; border-radius: 3px; }
-        ::-webkit-scrollbar-thumb:hover { background: #6b7280; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
         
         .animate-fade-in { animation: fadeIn 0.3s ease-in; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
         #processing-canvas { display: none; }
+        
+        /* Tutorial Highlight Pulse */
+        .tutorial-highlight {
+            box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.6);
+            z-index: 50;
+            position: relative;
+            transition: all 0.3s ease;
+        }
     </style>
 </head>
-<body class="bg-gray-900 text-white h-screen overflow-hidden">
+<body class="bg-slate-900 text-slate-100 h-screen overflow-hidden font-sans">
     <div id="root"></div>
     <canvas id="processing-canvas"></canvas>
 
@@ -47,8 +62,6 @@
                 trash: <><polyline points="3 6 5 6 21 6" /><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /></>,
                 image: <><rect x="3" y="3" width="18" height="18" rx="2" ry="2" /><circle cx="8.5" cy="8.5" r="1.5" /><polyline points="21 15 16 10 5 21" /></>,
                 download: <><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" /></>,
-                moon: <><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" /></>,
-                sun: <><circle cx="12" cy="12" r="5" /><line x1="12" y1="1" x2="12" y2="3" /><line x1="12" y1="21" x2="12" y2="23" /><line x1="4.22" y1="4.22" x2="5.64" y2="5.64" /><line x1="18.36" y1="18.36" x2="19.78" y2="19.78" /><line x1="1" y1="12" x2="3" y2="12" /><line x1="21" y1="12" x2="23" y2="12" /><line x1="4.22" y1="19.78" x2="5.64" y2="18.36" /><line x1="18.36" y1="5.64" x2="19.78" y2="4.22" /></>,
                 key: <><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4" /></>,
                 sparkles: <><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" /></>,
                 cpu: <><rect x="4" y="4" width="16" height="16" rx="2" ry="2" /><rect x="9" y="9" width="6" height="6" /><line x1="9" y1="1" x2="9" y2="4" /><line x1="15" y1="1" x2="15" y2="4" /><line x1="9" y1="20" x2="9" y2="23" /><line x1="15" y1="20" x2="15" y2="23" /><line x1="20" y1="9" x2="23" y2="9" /><line x1="20" y1="14" x2="23" y2="14" /><line x1="1" y1="9" x2="4" y2="9" /><line x1="1" y1="14" x2="4" y2="14" /></>,
@@ -56,9 +69,67 @@
                 eye: <><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" /></>,
                 eyeOff: <><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" /><line x1="1" y1="1" x2="23" y2="23" /></>,
                 layers: <><polygon points="12 2 2 7 12 12 22 7 12 2" /><polyline points="2 17 12 22 22 17" /><polyline points="2 12 12 17 22 12" /></>,
-                wand: <><path d="M15 4V2" /><path d="M15 16v-2" /><path d="M8 9h2" /><path d="M20 9h2" /><path d="M17.8 11.8 19 13" /><path d="M15 9h0" /><path d="M17.8 6.2 19 5" /><path d="m3 21 9-9" /><path d="M12.2 6.2 11 5" /></>
+                wand: <><path d="M15 4V2" /><path d="M15 16v-2" /><path d="M8 9h2" /><path d="M20 9h2" /><path d="M17.8 11.8 19 13" /><path d="M15 9h0" /><path d="M17.8 6.2 19 5" /><path d="m3 21 9-9" /><path d="M12.2 6.2 11 5" /></>,
+                check: <><polyline points="20 6 9 17 4 12" /></>,
+                x: <><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></>,
+                arrowRight: <><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></>
             };
             return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>{icons[name]}</svg>;
+        };
+
+        // --- TUTORIAL COMPONENTS ---
+        const WelcomeModal = ({ onStart, onClose }) => (
+            <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-fade-in">
+                <div className="bg-slate-800 border border-slate-700 rounded-2xl p-8 max-w-md w-full text-center shadow-2xl relative overflow-hidden">
+                    <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-blue-500 to-purple-500"></div>
+                    <img src="icon.png" className="w-24 h-24 mx-auto mb-6 rounded-full shadow-lg border-4 border-slate-700" alt="MangaLens Logo" />
+                    <h2 className="text-3xl font-bold text-white mb-2">Welcome to MangaLens!</h2>
+                    <p className="text-slate-400 mb-8 text-sm leading-relaxed">
+                        Your private, AI-powered translation studio. Translate raw manga pages instantly with professional accuracy, all running securely in your browser.
+                    </p>
+                    <div className="space-y-3">
+                        <button onClick={onStart} className="w-full py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold shadow-lg shadow-blue-900/30 transition-all flex items-center justify-center gap-2">
+                            Start Quick Tutorial <Icon name="arrowRight" />
+                        </button>
+                        <button onClick={onClose} className="w-full py-2 text-slate-500 hover:text-slate-300 text-sm font-medium">
+                            Skip for now
+                        </button>
+                    </div>
+                </div>
+            </div>
+        );
+
+        const TutorialOverlay = ({ step, onNext, onSkip }) => {
+            const steps = [
+                { id: 'step-mode', title: "1. Smart Modes", text: "Choose 'Color' for Webtoons or 'B&W' for traditional manga. Our B&W mode automatically cleans noise and screentones for better accuracy." },
+                { id: 'step-api', title: "2. Your Key", text: "Paste your free Google Gemini API key here. It's stored locally on your device—we never see it." },
+                { id: 'step-upload', title: "3. Batch Upload", text: "Drag and drop your raw files here. We handle large chapters (200+ pages) with ease." },
+                { id: 'step-translate', title: "4. Magic Wand", text: "Click 'Translate All' to auto-scan every page. Sit back and watch the green checks appear!" },
+                { id: 'step-download', title: "5. Export PDF", text: "Done? Download a professionally formatted PDF with side-by-side translations." }
+            ];
+
+            const current = steps[step];
+            if (!current) return null;
+
+            return (
+                <div className="fixed inset-0 z-[90] pointer-events-none">
+                    <div className="absolute inset-0 bg-black/20"></div>
+                    {/* Highlighting logic handled via CSS classes on elements, we just show the card here */}
+                    <div className="fixed bottom-10 left-1/2 transform -translate-x-1/2 md:left-auto md:right-10 md:bottom-10 md:translate-x-0 bg-slate-800 border border-slate-600 p-6 rounded-xl shadow-2xl w-80 pointer-events-auto animate-fade-in">
+                        <div className="flex justify-between items-start mb-3">
+                            <h3 className="font-bold text-lg text-blue-400">{current.title}</h3>
+                            <span className="text-xs bg-slate-700 px-2 py-0.5 rounded text-slate-300">{step + 1}/{steps.length}</span>
+                        </div>
+                        <p className="text-sm text-slate-300 mb-6 leading-relaxed">{current.text}</p>
+                        <div className="flex justify-between items-center">
+                            <button onClick={onSkip} className="text-xs text-slate-500 hover:text-white">End Tutorial</button>
+                            <button onClick={onNext} className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-sm font-bold flex items-center gap-1">
+                                {step === steps.length - 1 ? 'Finish' : 'Next'} <Icon name="arrowRight" size={14} />
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            );
         };
 
         function App() {
@@ -67,41 +138,58 @@
             const [processing, setProcessing] = useState({ status: 'idle', message: '' });
             const [pdfMode, setPdfMode] = useState('dark');
             
-            // API Settings
+            // Settings
             const [apiKey, setApiKey] = useState(localStorage.getItem('gemini_key') || '');
             const [modelId, setModelId] = useState(localStorage.getItem('gemini_model') || 'gemini-2.5-flash');
             const [showKeyInput, setShowKeyInput] = useState(true);
-
-            // Processing Settings
-            const [pageType, setPageType] = useState('color'); // 'color' or 'bw'
+            const [pageType, setPageType] = useState('color'); 
             const [threshold, setThreshold] = useState(130);
             const [showDebug, setShowDebug] = useState(false);
             const [debugImage, setDebugImage] = useState(null);
 
-            // Batch State
+            // Tutorial State
+            const [showWelcome, setShowWelcome] = useState(!localStorage.getItem('tutorial_seen'));
+            const [tutorialStep, setTutorialStep] = useState(-1);
+
             const [isBatchScanning, setIsBatchScanning] = useState(false);
             const stopBatchRef = useRef(false);
-
             const imageRef = useRef(null);
 
-            // --- Save Settings ---
+            // --- Tutorial Handlers ---
+            const startTutorial = () => {
+                setShowWelcome(false);
+                setTutorialStep(0);
+            };
+            const nextTutorialStep = () => {
+                if (tutorialStep < 4) setTutorialStep(prev => prev + 1);
+                else closeTutorial();
+            };
+            const closeTutorial = () => {
+                setTutorialStep(-1);
+                setShowWelcome(false);
+                localStorage.setItem('tutorial_seen', 'true');
+            };
+
+            const getHighlightClass = (stepId) => {
+                const map = ['step-mode', 'step-api', 'step-upload', 'step-translate', 'step-download'];
+                return tutorialStep !== -1 && map[tutorialStep] === stepId ? 'tutorial-highlight ring-4 ring-blue-500 rounded-lg transition-all duration-300' : '';
+            };
+
+            // --- Core Logic ---
             const handleKeyChange = (e) => {
                 const key = e.target.value;
                 setApiKey(key);
                 localStorage.setItem('gemini_key', key);
             };
-
             const handleModelChange = (e) => {
                 const model = e.target.value;
                 setModelId(model);
                 localStorage.setItem('gemini_model', model);
             };
 
-            // --- Handlers ---
             const handleUpload = (e) => {
                 const files = Array.from(e.target.files);
                 if (!files.length) return;
-                
                 const newImages = files.map(file => ({
                     id: Math.random().toString(36).substr(2, 9) + Date.now(),
                     url: URL.createObjectURL(file),
@@ -109,13 +197,11 @@
                     japText: '',
                     engText: ''
                 }));
-                
                 setImages(prev => {
                     const combined = [...prev, ...newImages];
                     return combined.sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' }));
                 });
-                
-                if (!selectedId && newImages.length > 0 && !isBatchScanning) setTimeout(() => setSelectedId(newImages[0].id), 100);
+                if (!selectedId && newImages.length > 0) setTimeout(() => setSelectedId(newImages[0].id), 100);
             };
 
             const removeImage = (e, id) => {
@@ -138,19 +224,16 @@
                 setImages(prev => prev.map(img => img.id === id ? { ...img, [type]: text } : img));
             };
 
-            // --- IMAGE PROCESSING ---
             const processImage = (imgUrl) => {
                 return new Promise((resolve, reject) => {
                     const img = new Image();
                     img.crossOrigin = "Anonymous";
                     img.src = imgUrl;
-                    
                     img.onload = () => {
                         const canvas = document.getElementById('processing-canvas');
                         const ctx = canvas.getContext('2d');
                         canvas.width = img.naturalWidth;
                         canvas.height = img.naturalHeight;
-                        
                         ctx.drawImage(img, 0, 0);
 
                         if (pageType === 'bw') {
@@ -163,7 +246,6 @@
                             }
                             ctx.putImageData(imageData, 0, 0);
                         }
-
                         const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
                         setDebugImage(dataUrl); 
                         resolve(dataUrl.split(',')[1]); 
@@ -172,17 +254,30 @@
                 });
             };
 
-            // --- CORE AI FUNCTION ---
             const performTranslation = async (targetId, targetUrl) => {
                 if (!apiKey) throw new Error("No API Key");
                 
                 const base64data = await processImage(targetUrl);
                 const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelId}:generateContent?key=${apiKey}`;
                 
+                // Updated Prompt to force single object structure
+                const promptText = `You are a professional Manga Translator. 
+                1. OCR: Extract all Japanese text from the image.
+                2. Translate: Translate it into natural, flowing English suitable for a comic.
+                3. Formatting: Return a SINGLE JSON object. Combine all Japanese text into one string with newlines, and all English text into one string with newlines.
+                
+                Output Format MUST be exactly:
+                {
+                  "japanese": "Line 1\\nLine 2",
+                  "english": "Line 1\\nLine 2"
+                }
+                
+                Do not output a list. Do not output markdown blocks. Just the JSON object.`;
+
                 const payload = {
                     contents: [{
                         parts: [
-                            { text: "You are a Manga Translator. 1. Transcribe all Japanese text in this image exactly as it appears (OCR). 2. Provide a fluent English translation. 3. Output purely JSON format with keys: 'japanese' and 'english'. Preserve newlines for dialogue bubbles." },
+                            { text: promptText },
                             { inline_data: { mime_type: "image/jpeg", data: base64data } }
                         ]
                     }]
@@ -199,16 +294,36 @@
                 if (!data.candidates || !data.candidates[0]) throw new Error("No response from AI.");
 
                 const rawText = data.candidates[0].content.parts[0].text;
-                const jsonStr = rawText.replace(/```json/g, '').replace(/```/g, '').trim();
                 
-                let result;
-                try { result = JSON.parse(jsonStr); } catch (e) { result = { japanese: "Format Error", english: rawText }; }
+                // ROBUST PARSING FIX
+                let cleanJson = rawText.replace(/```json/g, '').replace(/```/g, '').trim();
+                
+                // If Gemini still ignores instructions and sends multiple objects like } {
+                // We hack it into a valid array and merge
+                if (cleanJson.includes('}{') || cleanJson.includes('}\n{')) {
+                    cleanJson = '[' + cleanJson.replace(/\}\s*\{/g, '},{') + ']';
+                }
+
+                let result = { japanese: "", english: "" };
+                
+                try {
+                    const parsed = JSON.parse(cleanJson);
+                    if (Array.isArray(parsed)) {
+                        // Merge array parts if AI gave a list
+                        result.japanese = parsed.map(p => p.japanese).join('\n\n');
+                        result.english = parsed.map(p => p.english).join('\n\n');
+                    } else {
+                        result = parsed;
+                    }
+                } catch (e) {
+                    console.warn("JSON Parse failed, falling back to raw text", e);
+                    result = { japanese: "Format Warning (See English)", english: rawText };
+                }
 
                 updateText(targetId, 'japText', result.japanese || "No text found");
                 updateText(targetId, 'engText', result.english || "Translation failed");
             };
 
-            // --- MANUAL SINGLE SCAN ---
             const scanWithGemini = async () => {
                 if (!imageRef.current || !selectedId) return;
                 const activeImg = images.find(img => img.id === selectedId);
@@ -217,38 +332,25 @@
                     await performTranslation(selectedId, activeImg.url);
                     setProcessing({ status: 'success', message: 'Scan Complete!' });
                 } catch (err) {
-                    console.error(err);
                     setProcessing({ status: 'error', message: err.message });
                 }
                 setTimeout(() => setProcessing({ status: 'idle', message: '' }), 2000);
             };
 
-            // --- BATCH SCAN ---
             const handleBatchScan = async () => {
-                if (!apiKey) {
-                    alert("Please enter a Google Gemini API Key first.");
-                    return;
-                }
-                
-                // Filter for images that don't have English text yet? 
-                // Or just do all as requested by user. "Translates all"
+                if (!apiKey) { alert("Enter API Key first."); return; }
                 const total = images.length;
                 if (total === 0) return;
-
-                if (!confirm(`Start Translate All?\n\n- Total Images: ${total}\n- Estimated Calls: ${total}\n\nNote: This may take a few minutes to avoid rate limits.`)) return;
+                if (!confirm(`Start Translate All?\n\n- Images: ${total}\n- Est. Time: ${Math.ceil(total * 2 / 60)} mins\n\nConfirming ensures you are aware of API usage.`)) return;
 
                 setIsBatchScanning(true);
                 stopBatchRef.current = false;
 
                 for (let i = 0; i < total; i++) {
-                    if (stopBatchRef.current) {
-                        setProcessing({ status: 'idle', message: 'Batch Stopped' });
-                        break;
-                    }
-
+                    if (stopBatchRef.current) { setProcessing({ status: 'idle', message: 'Batch Stopped' }); break; }
                     const img = images[i];
-                    
-                    // Select the image so user sees it
+                    if(img.engText) continue; // Skip already done
+
                     setSelectedId(img.id);
                     setProcessing({ status: 'busy', message: `Batching: ${i + 1} of ${total}` });
 
@@ -256,23 +358,18 @@
                         await performTranslation(img.id, img.url);
                     } catch (err) {
                         console.error(`Failed image ${i+1}:`, err);
-                        // We continue to next image even if one fails
                     }
-
-                    // Safety Delay for Rate Limits (15 RPM = 1 req per 4s)
-                    // We'll use 1.5s which is aggressive but better than 0
                     await new Promise(r => setTimeout(r, 1500));
                 }
-
                 setIsBatchScanning(false);
                 setProcessing({ status: 'success', message: 'Batch Complete!' });
                 setTimeout(() => setProcessing({ status: 'idle', message: '' }), 3000);
             };
 
-            // --- PDF Generator ---
+            // --- Robust PDF Generator ---
             const generatePDF = async () => {
                 if (images.length === 0) return;
-                setProcessing({ status: 'busy', message: 'Building PDF...' });
+                setProcessing({ status: 'busy', message: 'Generating PDF...' });
 
                 try {
                     const doc = new jsPDF({ orientation: 'landscape', unit: 'px', hotfixes: ["px_scaling"] });
@@ -283,16 +380,27 @@
 
                     for (let i = 0; i < images.length; i++) {
                         const imgData = images[i];
+                        
+                        // Safe Image Load
                         const img = new Image();
                         img.src = imgData.url;
-                        await new Promise(r => img.onload = r);
+                        try {
+                            await new Promise((resolve, reject) => {
+                                img.onload = resolve;
+                                img.onerror = reject;
+                            });
+                        } catch (e) {
+                            console.error(`Failed to load image ${i}`, e);
+                            continue; // Skip bad images to save the rest of the PDF
+                        }
 
+                        // Virtual Canvas for Text Measurement
                         const tempCanvas = document.createElement('canvas');
                         const ctx = tempCanvas.getContext('2d');
                         ctx.font = "20px serif";
                         const maxWidth = sidebarWidth - (margin * 2);
                         
-                        const text = imgData.engText || "[No Translation]";
+                        const text = imgData.engText || "";
                         const paragraphs = text.split(/\n+/);
                         let allLines = [];
 
@@ -303,8 +411,8 @@
                         });
 
                         const lineHeight = 28;
-                        const textBlockHeight = allLines.length * lineHeight + 100; 
-                        const pageHeight = Math.max(img.naturalHeight, textBlockHeight);
+                        const textBlockHeight = (allLines.length * lineHeight) + 100; 
+                        const pageHeight = Math.max(img.naturalHeight, textBlockHeight, 600); // Min height 600
                         const pageWidth = img.naturalWidth + sidebarWidth;
 
                         if (i > 0) doc.addPage([pageWidth, pageHeight], 'landscape');
@@ -316,11 +424,14 @@
                         doc.setFillColor(bgColor);
                         doc.rect(img.naturalWidth, 0, sidebarWidth, pageHeight, 'F');
                         
+                        // High Quality Image Add
                         const canvas = document.createElement('canvas');
                         canvas.width = img.naturalWidth;
                         canvas.height = img.naturalHeight;
                         canvas.getContext('2d').drawImage(img, 0, 0);
-                        doc.addImage(canvas.toDataURL('image/jpeg', 0.8), 'JPEG', 0, 0, img.naturalWidth, img.naturalHeight);
+                        // Use FAST compression for large batches to prevent crashes
+                        const compression = images.length > 50 ? 'FAST' : 'SLOW';
+                        doc.addImage(canvas.toDataURL('image/jpeg', 0.75), 'JPEG', 0, 0, img.naturalWidth, img.naturalHeight, undefined, compression);
 
                         doc.setFillColor(156, 163, 175);
                         doc.rect(img.naturalWidth, 0, 2, pageHeight, 'F');
@@ -339,25 +450,36 @@
                             cursorY += lineHeight;
                         });
 
-                        setProcessing({ status: 'busy', message: `Page ${i+1}...` });
+                        setProcessing({ status: 'busy', message: `PDF: Page ${i+1}/${images.length}` });
                     }
 
                     doc.save('Manga_Translated.pdf');
-                    setProcessing({ status: 'success', message: 'Downloaded!' });
+                    setProcessing({ status: 'success', message: 'PDF Downloaded!' });
                     setTimeout(() => setProcessing({ status: 'idle', message: '' }), 2000);
                 } catch (err) {
                     console.error(err);
-                    setProcessing({ status: 'error', message: 'PDF Error' });
+                    setProcessing({ status: 'error', message: 'PDF Error: ' + err.message });
                 }
             };
 
             const getLines = (ctx, text, maxWidth) => {
+                if(!text) return [];
                 const words = text.split(' ');
                 const lines = [];
                 let currentLine = words[0];
+
                 for (let i = 1; i < words.length; i++) {
                     const word = words[i];
                     const width = ctx.measureText(currentLine + " " + word).width;
+                    
+                    // Safety: If a single word is massive, force break it
+                    if (ctx.measureText(word).width > maxWidth) {
+                        if (currentLine) lines.push(currentLine);
+                        lines.push(word); // Push giant word on own line
+                        currentLine = "";
+                        continue;
+                    }
+
                     if (width < maxWidth) {
                         currentLine += " " + word;
                     } else {
@@ -372,46 +494,55 @@
             const activeImage = images.find(img => img.id === selectedId);
 
             return (
-                <div className="flex h-screen w-full overflow-hidden bg-gray-900 text-white">
-                    <div className="w-80 bg-gray-800 border-r border-gray-700 flex flex-col flex-shrink-0 h-full">
-                        <div className="p-4 border-b border-gray-700 bg-gray-800 flex justify-between items-center flex-shrink-0">
-                            <h1 className="font-bold text-lg flex items-center gap-2 text-blue-400">
-                                <Icon name="image" /> MangaLens V13
+                <div className="flex h-screen w-full overflow-hidden bg-slate-900 text-white">
+                    
+                    {showWelcome && <WelcomeModal onStart={startTutorial} onClose={closeTutorial} />}
+                    {tutorialStep >= 0 && <TutorialOverlay step={tutorialStep} onNext={nextTutorialStep} onSkip={closeTutorial} />}
+
+                    <div className="w-80 bg-slate-800 border-r border-slate-700 flex flex-col flex-shrink-0 h-full shadow-xl z-20">
+                        <div className="p-4 border-b border-slate-700 bg-slate-800 flex justify-between items-center flex-shrink-0">
+                            <h1 className="font-bold text-xl flex items-center gap-2 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">
+                                <img src="icon.png" className="w-6 h-6 rounded-full" /> MangaLens
                             </h1>
-                            <button onClick={clearAllImages} className="text-red-400 hover:text-red-300" title="Clear All">
+                            <button onClick={clearAllImages} className="text-slate-400 hover:text-red-400 transition-colors" title="Clear All">
                                 <Icon name="refresh" />
                             </button>
                         </div>
-                        <div className="p-4 space-y-3 flex-shrink-0">
+                        
+                        <div className="p-4 space-y-4 flex-shrink-0 overflow-y-auto">
+                            
                             {/* BATCH BUTTON */}
-                            <button 
-                                onClick={() => isBatchScanning ? (stopBatchRef.current = true) : handleBatchScan()}
-                                disabled={images.length === 0}
-                                className={`w-full py-2 rounded font-bold text-sm shadow-lg flex items-center justify-center gap-2 transition-all ${isBatchScanning ? 'bg-red-600 hover:bg-red-500 animate-pulse' : 'bg-purple-600 hover:bg-purple-500'}`}
-                            >
-                                {isBatchScanning ? (
-                                    <>Stop Batch</>
-                                ) : (
-                                    <><Icon name="wand" /> Translate All</>
-                                )}
-                            </button>
+                            <div className={getHighlightClass('step-translate')}>
+                                <button 
+                                    onClick={() => isBatchScanning ? (stopBatchRef.current = true) : handleBatchScan()}
+                                    disabled={images.length === 0}
+                                    id="btn-translate-all"
+                                    className={`w-full py-3 rounded-xl font-bold text-sm shadow-lg flex items-center justify-center gap-2 transition-all transform active:scale-95 ${isBatchScanning ? 'bg-red-500 hover:bg-red-600 animate-pulse' : 'bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500'}`}
+                                >
+                                    {isBatchScanning ? (
+                                        <>Stop Batch</>
+                                    ) : (
+                                        <><Icon name="wand" /> Translate All</>
+                                    )}
+                                </button>
+                            </div>
 
                             {/* MODE SELECTOR */}
-                            <div className="bg-gray-700/50 rounded border border-gray-600 p-3 space-y-3">
+                            <div className={`bg-slate-700/30 rounded-xl border border-slate-600 p-3 space-y-3 ${getHighlightClass('step-mode')}`}>
                                 <div>
-                                    <label className="text-[10px] font-bold text-blue-400 uppercase flex items-center gap-1 mb-2">
+                                    <label className="text-[10px] font-bold text-blue-400 uppercase flex items-center gap-1 mb-2 tracking-wider">
                                         <Icon name="layers" size={12} /> Page Type
                                     </label>
-                                    <div className="flex bg-gray-900 rounded p-1 border border-gray-700">
+                                    <div className="flex bg-slate-900 rounded-lg p-1 border border-slate-600">
                                         <button 
                                             onClick={() => { setPageType('color'); if(activeImage) processImage(activeImage.url); }}
-                                            className={`flex-1 text-xs py-1.5 rounded transition-colors ${pageType === 'color' ? 'bg-blue-600 text-white' : 'text-gray-400 hover:text-white'}`}
+                                            className={`flex-1 text-xs py-1.5 rounded-md transition-all font-medium ${pageType === 'color' ? 'bg-blue-600 text-white shadow' : 'text-slate-400 hover:text-white'}`}
                                         >
                                             Color
                                         </button>
                                         <button 
                                             onClick={() => { setPageType('bw'); if(activeImage) processImage(activeImage.url); }}
-                                            className={`flex-1 text-xs py-1.5 rounded transition-colors ${pageType === 'bw' ? 'bg-blue-600 text-white' : 'text-gray-400 hover:text-white'}`}
+                                            className={`flex-1 text-xs py-1.5 rounded-md transition-all font-medium ${pageType === 'bw' ? 'bg-blue-600 text-white shadow' : 'text-slate-400 hover:text-white'}`}
                                         >
                                             B & W
                                         </button>
@@ -420,10 +551,10 @@
 
                                 {/* B&W Controls */}
                                 {pageType === 'bw' && (
-                                    <div className="animate-fade-in border-t border-gray-700 pt-2 mt-2">
-                                        <div className="flex justify-between items-center mb-1">
-                                            <label className="text-[10px] text-gray-400">B&W Threshold: {threshold}</label>
-                                            <button onClick={() => setShowDebug(!showDebug)} className={`p-1 rounded ${showDebug ? 'bg-blue-600 text-white' : 'bg-gray-600 text-gray-300'}`} title="Preview B&W">
+                                    <div className="animate-fade-in border-t border-slate-600 pt-2">
+                                        <div className="flex justify-between items-center mb-2">
+                                            <label className="text-[10px] text-slate-400">Ink Threshold: {threshold}</label>
+                                            <button onClick={() => setShowDebug(!showDebug)} className={`p-1.5 rounded-md transition-colors ${showDebug ? 'bg-blue-600 text-white' : 'bg-slate-600 text-slate-300'}`} title="Preview B&W">
                                                 <Icon name={showDebug ? 'eye' : 'eyeOff'} size={12} />
                                             </button>
                                         </div>
@@ -431,20 +562,20 @@
                                             type="range" min="50" max="200" 
                                             value={threshold} 
                                             onChange={(e) => { setThreshold(Number(e.target.value)); if(activeImage) processImage(activeImage.url); }}
-                                            className="w-full h-1 bg-gray-600 rounded-lg appearance-none cursor-pointer accent-blue-500" 
+                                            className="w-full h-1 bg-slate-600 rounded-lg appearance-none cursor-pointer accent-blue-500" 
                                         />
                                     </div>
                                 )}
                             </div>
 
                             {/* API CONFIG */}
-                            <div className="bg-gray-700/50 rounded border border-gray-600 p-3 space-y-3">
+                            <div className={`bg-slate-700/30 rounded-xl border border-slate-600 p-3 space-y-3 ${getHighlightClass('step-api')}`}>
                                 <div>
                                     <div className="flex justify-between items-center mb-2">
-                                        <label className="text-[10px] font-bold text-blue-400 uppercase flex items-center gap-1">
+                                        <label className="text-[10px] font-bold text-blue-400 uppercase flex items-center gap-1 tracking-wider">
                                             <Icon name="key" size={12} /> API Key
                                         </label>
-                                        <button onClick={() => setShowKeyInput(!showKeyInput)} className="text-xs text-gray-400 hover:text-white">
+                                        <button onClick={() => setShowKeyInput(!showKeyInput)} className="text-[10px] text-slate-400 hover:text-white uppercase">
                                             {showKeyInput ? 'Hide' : 'Show'}
                                         </button>
                                     </div>
@@ -454,129 +585,146 @@
                                             value={apiKey}
                                             onChange={handleKeyChange}
                                             placeholder="Paste AIza... key"
-                                            className="w-full bg-gray-900 border border-gray-600 rounded px-2 py-1 text-xs text-white focus:ring-1 focus:ring-blue-500 outline-none"
+                                            className="w-full bg-slate-900 border border-slate-600 rounded-lg px-3 py-2 text-xs text-white focus:ring-2 focus:ring-blue-500 outline-none transition-all placeholder-slate-600"
                                         />
                                     )}
                                 </div>
 
                                 <div>
-                                    <label className="text-[10px] font-bold text-blue-400 uppercase flex items-center gap-1 mb-1">
+                                    <label className="text-[10px] font-bold text-blue-400 uppercase flex items-center gap-1 mb-1 tracking-wider">
                                         <Icon name="cpu" size={12} /> AI Model
                                     </label>
                                     <select 
                                         value={modelId}
                                         onChange={handleModelChange}
-                                        className="w-full bg-gray-900 border border-gray-600 rounded px-2 py-1 text-xs text-white focus:ring-1 focus:ring-blue-500 outline-none mb-1"
+                                        className="w-full bg-slate-900 border border-slate-600 rounded-lg px-2 py-2 text-xs text-white focus:ring-2 focus:ring-blue-500 outline-none mb-2"
                                     >
-                                        <option value="gemini-2.5-flash">Gemini 2.5 Flash (Recommended)</option>
+                                        <option value="gemini-2.5-flash">Gemini 2.5 Flash (Fastest)</option>
                                         <option value="gemini-1.5-flash-latest">Gemini 1.5 Flash (Legacy)</option>
-                                        <option value="gemini-2.5-pro">Gemini 2.5 Pro (Powerful)</option>
+                                        <option value="gemini-2.5-pro">Gemini 2.5 Pro (Smartest)</option>
                                     </select>
-                                    <input 
-                                        type="text" 
-                                        value={modelId}
-                                        onChange={handleModelChange}
-                                        placeholder="Or type custom model ID..."
-                                        className="w-full bg-gray-900/50 border border-gray-700 rounded px-2 py-1 text-[10px] text-gray-400 focus:text-white focus:border-blue-500 outline-none"
-                                    />
                                 </div>
                             </div>
 
-                             <label className="flex items-center justify-center w-full h-10 px-4 transition bg-gray-700 border border-gray-600 rounded-lg hover:bg-gray-600 cursor-pointer text-sm font-medium shadow-lg">
-                                <Icon name="upload" className="mr-2" /> Upload Images
+                             <label className={`flex items-center justify-center w-full h-12 px-4 transition bg-slate-700 border border-slate-600 rounded-xl hover:bg-slate-600 hover:border-slate-500 cursor-pointer text-sm font-medium shadow-sm group ${getHighlightClass('step-upload')}`}>
+                                <Icon name="upload" className="mr-2 text-blue-400 group-hover:text-blue-300" /> 
+                                <span className="text-slate-200 group-hover:text-white">Upload Images</span>
                                 <input type="file" multiple accept="image/*" onChange={handleUpload} className="hidden" />
                             </label>
 
-                            <div className="p-3 bg-gray-700/50 rounded border border-gray-600">
-                                <button onClick={generatePDF} disabled={images.length === 0} className="w-full h-10 bg-green-600 hover:bg-green-500 text-white rounded font-bold text-sm shadow flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
+                            <div className={`bg-slate-700/30 rounded-xl border border-slate-600 p-1 ${getHighlightClass('step-download')}`}>
+                                <button onClick={generatePDF} disabled={images.length === 0} className="w-full h-10 bg-green-600 hover:bg-green-500 text-white rounded-lg font-bold text-xs shadow flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
                                     <Icon name="download" /> Download PDF
                                 </button>
                             </div>
                         </div>
                         
-                        <div className="flex-1 overflow-y-auto p-2 space-y-1 min-h-0">
+                        {/* Image List */}
+                        <div className="flex-1 overflow-y-auto p-2 space-y-1 min-h-0 bg-slate-800/50">
                             {images.map((img, idx) => (
-                                <div key={img.id} onClick={() => setSelectedId(img.id)} className={`group flex items-center gap-3 p-2 rounded cursor-pointer transition-colors ${selectedId === img.id ? 'bg-gray-700 ring-1 ring-blue-500' : 'hover:bg-gray-700/50'}`}>
-                                    <div className="w-8 h-10 bg-gray-900 rounded overflow-hidden flex-shrink-0 border border-gray-600 relative">
-                                        <img src={img.url} className="w-full h-full object-cover opacity-80" />
-                                        {img.engText && <div className="absolute bottom-0 right-0 w-2 h-2 bg-green-500 rounded-full shadow-sm m-0.5"></div>}
+                                <div key={img.id} onClick={() => setSelectedId(img.id)} className={`group flex items-center gap-3 p-2 rounded-lg cursor-pointer transition-all ${selectedId === img.id ? 'bg-slate-700 ring-1 ring-blue-500/50 shadow-md' : 'hover:bg-slate-700/50'}`}>
+                                    <div className="w-10 h-12 bg-slate-900 rounded overflow-hidden flex-shrink-0 border border-slate-600 relative">
+                                        <img src={img.url} className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" />
+                                        {img.engText && (
+                                            <div className="absolute inset-0 flex items-center justify-center bg-green-500/20 backdrop-blur-[1px]">
+                                                <div className="bg-green-500 rounded-full p-0.5 shadow-sm"><Icon name="check" size={10} className="text-white" /></div>
+                                            </div>
+                                        )}
                                     </div>
                                     <div className="flex-1 min-w-0">
-                                        <p className="text-xs font-medium truncate text-gray-300">{img.name}</p>
-                                        <p className="text-[10px] text-gray-500">Page {idx + 1}</p>
+                                        <p className="text-xs font-medium truncate text-slate-300 group-hover:text-white transition-colors">{img.name}</p>
+                                        <p className="text-[10px] text-slate-500">Page {idx + 1}</p>
                                     </div>
-                                    <button onClick={(e) => removeImage(e, img.id)} className="opacity-0 group-hover:opacity-100 p-1 hover:bg-red-500/20 text-red-400 rounded">
-                                        <Icon name="trash" />
+                                    <button onClick={(e) => removeImage(e, img.id)} className="opacity-0 group-hover:opacity-100 p-1.5 hover:bg-red-500/20 text-red-400 rounded-md transition-all">
+                                        <Icon name="trash" size={14} />
                                     </button>
                                 </div>
                             ))}
+                            {images.length === 0 && (
+                                <div className="text-center py-10 text-slate-600 text-xs">
+                                    Drop images here<br/>to start translating
+                                </div>
+                            )}
                         </div>
                     </div>
 
-                    <div className="flex-1 bg-gray-900 relative overflow-auto flex flex-col items-center justify-start pt-8 select-none">
+                    {/* Main Canvas */}
+                    <div className="flex-1 bg-slate-900 relative overflow-auto flex flex-col items-center justify-start pt-8 select-none">
                         {activeImage ? (
-                            <div className="relative shadow-2xl mb-20 max-w-[95%]">
+                            <div className="relative shadow-2xl mb-20 max-w-[95%] transition-all duration-300">
                                 {/* B&W Preview Overlay */}
                                 {showDebug && pageType === 'bw' && (
-                                    <div className="absolute top-0 right-0 z-20 border-2 border-yellow-500 bg-black p-1 shadow-xl">
-                                        <p className="text-[10px] text-yellow-500 font-bold bg-black mb-1 px-1">B&W PREVIEW (ADJUST SLIDER)</p>
-                                        {debugImage ? <img src={debugImage} className="max-w-[200px] border border-gray-700" /> : <div className="w-[200px] h-[100px] flex items-center justify-center text-xs text-gray-500">Processing...</div>}
+                                    <div className="absolute top-4 right-4 z-20 border border-yellow-500/50 bg-black/90 p-2 shadow-2xl rounded-lg backdrop-blur-md">
+                                        <p className="text-[10px] text-yellow-500 font-bold mb-2 uppercase tracking-wide">B&W Preview</p>
+                                        {debugImage ? <img src={debugImage} className="max-w-[200px] border border-slate-700 rounded" /> : <div className="w-[200px] h-[100px] flex items-center justify-center text-xs text-slate-500">Processing...</div>}
                                     </div>
                                 )}
                                 <img 
                                     ref={imageRef}
                                     src={activeImage.url}
-                                    className="max-w-full max-h-[85vh] border border-gray-700 rounded-sm"
+                                    className="max-w-full max-h-[85vh] border-2 border-slate-800 rounded-lg shadow-2xl"
                                     draggable="false"
                                 />
-                                <div className="absolute -bottom-14 left-1/2 transform -translate-x-1/2 flex gap-2 bg-gray-800 p-2 rounded-lg shadow-xl border border-gray-700">
-                                    <button onClick={scanWithGemini} disabled={processing.status === 'busy'} className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded font-medium text-sm disabled:opacity-50 shadow-lg shadow-blue-900/20">
-                                        {processing.status === 'busy' ? <span className="animate-pulse">Asking AI...</span> : <><Icon name="sparkles" /> Scan Page</>}
+                                <div className="absolute -bottom-14 left-1/2 transform -translate-x-1/2 flex gap-2 bg-slate-800/90 backdrop-blur border border-slate-600 p-2 rounded-xl shadow-2xl">
+                                    <button onClick={scanWithGemini} disabled={processing.status === 'busy'} className="flex items-center gap-2 px-6 py-2 bg-blue-600 hover:bg-blue-500 rounded-lg font-bold text-sm disabled:opacity-50 shadow-lg shadow-blue-900/30 transition-transform active:scale-95">
+                                        {processing.status === 'busy' ? <span className="animate-pulse">Processing...</span> : <><Icon name="sparkles" /> Scan Page</>}
                                     </button>
                                 </div>
                             </div>
                         ) : (
-                            <div className="flex flex-col items-center justify-center h-full text-gray-600 opacity-50">
-                                <Icon name="image" size={64} className="mb-4" />
-                                <p>Select a page to start</p>
+                            <div className="flex flex-col items-center justify-center h-full text-slate-700">
+                                <Icon name="image" size={64} className="mb-6 opacity-20" />
+                                <p className="font-light">Select a page to begin</p>
                             </div>
                         )}
                     </div>
 
-                    <div className="w-80 bg-gray-800 border-l border-gray-700 flex flex-col shadow-xl z-10 h-full">
-                        <div className="p-4 border-b border-gray-700 bg-gray-850 flex-shrink-0">
-                            <h2 className="font-bold text-sm uppercase tracking-wider text-gray-400 mb-1">Translation (AI)</h2>
+                    {/* Text Sidebar */}
+                    <div className="w-80 bg-slate-800 border-l border-slate-700 flex flex-col shadow-xl z-20 h-full">
+                        <div className="p-4 border-b border-slate-700 bg-slate-800 flex-shrink-0">
+                            <h2 className="font-bold text-sm uppercase tracking-wider text-slate-400 flex items-center gap-2">
+                                <Icon name="translate" size={14} /> Translation Results
+                            </h2>
                         </div>
                         {processing.status !== 'idle' && (
-                            <div className={`px-4 py-2 text-xs font-bold flex justify-between items-center flex-shrink-0 ${processing.status === 'error' ? 'bg-red-900/50 text-red-200' : processing.status === 'success' ? 'bg-green-900/50 text-green-200' : 'bg-blue-900/30 text-blue-200'}`}>
+                            <div className={`px-4 py-3 text-xs font-bold flex justify-between items-center flex-shrink-0 border-b border-white/5 ${processing.status === 'error' ? 'bg-red-500/10 text-red-400 border-red-500/20' : processing.status === 'success' ? 'bg-green-500/10 text-green-400 border-green-500/20' : 'bg-blue-500/10 text-blue-400 border-blue-500/20'}`}>
                                 <span>{processing.message}</span>
+                                {processing.status === 'busy' && <div className="w-3 h-3 rounded-full border-2 border-current border-t-transparent animate-spin"></div>}
                             </div>
                         )}
-                        <div className="flex-1 p-4 overflow-y-auto space-y-4 min-h-0">
+                        <div className="flex-1 p-4 overflow-y-auto space-y-5 min-h-0">
                             {activeImage ? (
                                 <>
-                                    <div>
-                                        <label className="text-[10px] font-bold text-gray-500 uppercase mb-1 block">Japanese</label>
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Japanese (OCR)</label>
                                         <textarea 
-                                            className="w-full h-32 bg-gray-900 border border-gray-600 rounded p-2 text-sm text-gray-100 focus:ring-1 focus:ring-blue-500 focus:outline-none resize-none"
+                                            className="w-full h-32 bg-slate-900/50 border border-slate-600 rounded-lg p-3 text-sm text-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none resize-none transition-all font-sans leading-relaxed"
                                             value={activeImage.japText || ''}
                                             onChange={(e) => updateText(activeImage.id, 'japText', e.target.value)}
-                                            placeholder="AI transcription..."
+                                            placeholder="Extracted text will appear here..."
                                         />
                                     </div>
-                                    <div className="flex items-center justify-center text-gray-500"><Icon name="translate" /><div className="border-t border-gray-700 flex-1 ml-2"></div></div>
-                                    <div>
-                                        <label className="text-[10px] font-bold text-green-500 uppercase mb-1 block">English (PDF)</label>
+                                    
+                                    <div className="relative h-px bg-slate-700 w-full">
+                                        <div className="absolute left-1/2 -top-3 -translate-x-1/2 bg-slate-800 px-2 text-slate-600">
+                                            <Icon name="translate" size={14} />
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-bold text-green-500 uppercase tracking-wider">English (PDF Output)</label>
                                         <textarea 
-                                            className="w-full h-64 bg-gray-900 border border-green-700/50 rounded p-2 text-sm text-white focus:ring-1 focus:ring-green-500 focus:outline-none resize-none"
+                                            className="w-full h-64 bg-slate-900/50 border border-green-500/30 rounded-lg p-3 text-sm text-white focus:ring-2 focus:ring-green-500/50 focus:border-transparent outline-none resize-none transition-all font-serif leading-relaxed shadow-inner"
                                             value={activeImage.engText || ''}
                                             onChange={(e) => updateText(activeImage.id, 'engText', e.target.value)}
-                                            placeholder="AI Translation..."
+                                            placeholder="English translation..."
                                         />
                                     </div>
                                 </>
                             ) : (
-                                <div className="text-center mt-20 opacity-50 text-sm text-gray-500">No image selected.</div>
+                                <div className="text-center mt-20 opacity-30 text-sm text-slate-400 italic">
+                                    No page selected
+                                </div>
                             )}
                         </div>
                     </div>
