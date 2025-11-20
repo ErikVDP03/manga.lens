@@ -41,7 +41,7 @@
             position: relative;
             transition: all 0.3s ease;
             background-color: inherit; 
-            z-index: 50; /* Lower than overlay, but relative */
+            z-index: 50; 
         }
 
         /* Force tutorial overlay to be top-most */
@@ -421,7 +421,8 @@
                         });
 
                         const lineHeight = 28;
-                        const textBlockHeight = (allLines.length * lineHeight) + 100; 
+                        // Increase height calculation to add more buffer for text
+                        const textBlockHeight = (allLines.length * lineHeight) + 200; 
                         const pageHeight = Math.max(img.naturalHeight, textBlockHeight, 600); 
                         const pageWidth = img.naturalWidth + sidebarWidth;
 
@@ -431,9 +432,11 @@
                             doc.internal.pageSize.height = pageHeight; 
                         }
 
+                        // Draw Background (Left & Right)
                         doc.setFillColor(bgColor);
-                        doc.rect(img.naturalWidth, 0, sidebarWidth, pageHeight, 'F');
-                        
+                        doc.rect(0, 0, pageWidth, pageHeight, 'F');
+
+                        // Draw Image (Left Side)
                         const canvas = document.createElement('canvas');
                         canvas.width = img.naturalWidth;
                         canvas.height = img.naturalHeight;
@@ -441,9 +444,11 @@
                         const compression = images.length > 50 ? 'FAST' : 'SLOW';
                         doc.addImage(canvas.toDataURL('image/jpeg', 0.75), 'JPEG', 0, 0, img.naturalWidth, img.naturalHeight, undefined, compression);
 
+                        // Draw Separator
                         doc.setFillColor(156, 163, 175);
                         doc.rect(img.naturalWidth, 0, 2, pageHeight, 'F');
 
+                        // Draw Text (Right Side)
                         doc.setTextColor(textColor);
                         doc.setFontSize(24);
                         doc.setFont(undefined, 'bold');
