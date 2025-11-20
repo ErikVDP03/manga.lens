@@ -41,6 +41,7 @@
             position: relative;
             transition: all 0.3s ease;
             background-color: inherit; 
+            z-index: 100 !important; /* Ensures highlight sits above backdrop */
         }
     </style>
 </head>
@@ -116,8 +117,12 @@
             if (!current) return null;
 
             return (
-                <div className="fixed inset-0 z-[90] pointer-events-none">
-                    <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px]"></div>
+                // Removed wrapping div that constrained Z-Index. Components now siblings.
+                <>
+                    {/* Backdrop - Z-90 */}
+                    <div className="fixed inset-0 bg-black/60 backdrop-blur-[2px] z-[90] transition-opacity duration-300 pointer-events-none" />
+
+                    {/* Card - Z-120 (High above everything) */}
                     <div className="fixed bottom-10 left-1/2 transform -translate-x-1/2 md:left-auto md:right-10 md:bottom-10 md:translate-x-0 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 p-6 rounded-xl shadow-2xl w-80 pointer-events-auto animate-fade-in transition-colors z-[120]">
                         <div className="flex justify-between items-start mb-3">
                             <h3 className="font-bold text-lg text-blue-600 dark:text-blue-400">{current.title}</h3>
@@ -131,7 +136,7 @@
                             </button>
                         </div>
                     </div>
-                </div>
+                </>
             );
         };
 
@@ -454,7 +459,6 @@
                     }
 
                     if (action === 'print') {
-                        // More robust print/preview method: Open blob URL in new tab
                         const blob = doc.output('blob');
                         const url = URL.createObjectURL(blob);
                         window.open(url, '_blank');
@@ -519,7 +523,7 @@
 
                     {/* SIDEBAR */}
                     <div className={`
-                        fixed md:static inset-y-0 left-0 z-30 w-80 bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700 flex flex-col h-full shadow-2xl md:shadow-none transition-transform duration-300 transform md:transform-none
+                        fixed md:static inset-y-0 left-0 w-80 bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700 flex flex-col h-full shadow-2xl md:shadow-none transition-transform duration-300 transform md:transform-none
                         ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
                         ${tutorialStep >= 0 ? 'z-[100]' : 'z-30'}
                         pt-14 md:pt-0
