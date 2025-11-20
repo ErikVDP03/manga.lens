@@ -190,8 +190,6 @@
 
             const getHighlightClass = (stepId) => {
                 const map = ['step-mode', 'step-api', 'step-upload', 'step-translate', 'step-download'];
-                // Removed z-index here because parent container might trap it. 
-                // We handle visual focus via high contrast ring, but tutorial overlay handles z-index
                 return tutorialStep !== -1 && map[tutorialStep] === stepId ? 'tutorial-highlight ring-4 ring-blue-500 dark:ring-blue-400 rounded-lg transition-all duration-300 shadow-xl bg-white dark:bg-slate-800 relative z-50' : '';
             };
 
@@ -755,8 +753,19 @@
                             </div>
                         ) : (
                             <div className="flex flex-col items-center justify-center h-full text-slate-400 dark:text-slate-700">
-                                <Icon name="image" size={64} className="mb-6 opacity-20" />
-                                <p className="font-light">Select a page to begin</p>
+                                {/* Text and Icon moved above */}
+                                <Icon name="image" size={64} className="mb-4 opacity-20" />
+                                <p className="font-light text-lg mb-8">Select a page to begin</p>
+
+                                {/* SHOWCASE IMAGE: Only shown when no images are uploaded yet */}
+                                {images.length === 0 && (
+                                    <img 
+                                        src="infographic-manga.jpg" 
+                                        alt="MangaLens Showcase" 
+                                        className="max-w-md w-full h-auto rounded-lg shadow-2xl border border-slate-200 dark:border-slate-700 opacity-90 hover:opacity-100 transition-opacity duration-500"
+                                        style={{ maxHeight: '50vh' }}
+                                    />
+                                )}
                             </div>
                         )}
                     </div>
